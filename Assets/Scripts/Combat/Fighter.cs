@@ -64,12 +64,17 @@ namespace RPG.Combat {
 		private void AttackBehaviour ()
 		{
 			if (timeSinceLastAttack > timeBetweenAttacks) {
-				myAnim.ResetTrigger ("stopAttack");
-				myAnim.SetTrigger ("attack");
+				StartAttack ();
 				timeSinceLastAttack = 0;
 
 			}
 
+		}
+
+		private void StartAttack ()
+		{
+			myAnim.ResetTrigger ("stopAttack");
+			myAnim.SetTrigger ("attack");
 		}
 
 		//Called from PlayerController
@@ -80,9 +85,6 @@ namespace RPG.Combat {
 
 			//Look At Enemy or Player when attacking
 			transform.LookAt (target.transform);
-
-			string targetName = target.gameObject.name;
-			print ("Attacking " + targetName);
 		}
 
 		// Animation Event on attack animations of fighter
@@ -96,9 +98,14 @@ namespace RPG.Combat {
 
 		public void Cancel ()
 		{
-			myAnim.SetTrigger ("stopAttack");
+			StopAttack ();
 			target = null;
 		}
 
+		private void StopAttack ()
+		{
+			myAnim.ResetTrigger ("attack");
+			myAnim.SetTrigger ("stopAttack");
+		}
 	}
 }
