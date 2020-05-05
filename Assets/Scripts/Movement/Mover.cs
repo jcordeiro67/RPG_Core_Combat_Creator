@@ -1,50 +1,51 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using RPG.Core;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Mover : MonoBehaviour {
+namespace RPG.Movement {
 
-	private Vector3 destination;
-	private NavMeshAgent myNavAgent;
-	private Vector3 velocity;
-	private Animator myAnimator;
+	public class Mover : MonoBehaviour, IAction {
 
-	void Start ()
-	{
-		myNavAgent = GetComponent<NavMeshAgent> ();
-		destination = myNavAgent.destination;
-		myAnimator = GetComponent<Animator> ();
+		private NavMeshAgent myNavAgent;
+		private Vector3 velocity;
+		private Animator myAnimator;
 
-	}
+		void Start ()
+		{
+			myNavAgent = GetComponent<NavMeshAgent> ();
+			myAnimator = GetComponent<Animator> ();
 
-	void Update ()
-	{
-
-		if (Input.GetMouseButton (0)) {
-
-			MoveToCursor ();
 		}
-		UpdateAnimator ();
-	}
 
-	private void MoveToCursor ()
-	{
-		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition);
+		void Update ()
+		{
+			UpdateAnimator ();
+		}
 
-		bool hasHit = Physics.Raycast (ray, out RaycastHit hit);
+		public void StartMoveAction (Vector3 destination)
+		{
+			GetComponent<ActionScheduler> ().StartAction (this);
+			MoveTo (destination);
+		}
 
-		if (hasHit && Vector3.Distance (destination, hit.point) >= myNavAgent.stoppingDistance) {
-			destination = hit.point;
+		public void MoveTo (Vector3 destination)
+		{
 			myNavAgent.destination = destination;
+			myNavAgent.isStopped = false;
 		}
-	}
 
-	private void UpdateAnimator ()
-	{
-		velocity = myNavAgent.velocity;
-		Vector3 localVelocity = transform.InverseTransformDirection (velocity);
-		float speed = localVelocity.z;
-		myAnimator.SetFloat ("ForwardSpeed", speed);
+		public void Cancel ()
+		{
+			myNavAgent.isStopped = true;
+		}
+
+		private void UpdateAnimator ()
+		{
+			velocity = myNavAgent.velocity;
+			Vector3 localVelocity = transform.InverseTransformDirection (velocity);
+			float speed = localVelocity.z;
+			myAnimator.SetFloat ("ForwardSpeed", speed);
+		}
+
 	}
 }
