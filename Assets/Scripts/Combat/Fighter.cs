@@ -10,7 +10,7 @@ namespace RPG.Combat {
 		[SerializeField] float timeBetweenAttacks = 1f;
 		[SerializeField] float weaponDamage = 5f;
 
-		float timeSinceLastAttack = 0f;
+		float timeSinceLastAttack = Mathf.Infinity;
 
 		Health target;
 		Mover mover;
@@ -45,13 +45,10 @@ namespace RPG.Combat {
 
 		private bool GetIsInRange ()
 		{
-			//Fixed NullReference by moving bool inside first if and breaing
-			//single if statement into nested if statements
-
 			return Vector3.Distance (transform.position, target.transform.position) < weaponRange;
 		}
 
-		public bool CanAttack (CombatTarget combatTarget)
+		public bool CanAttack (GameObject combatTarget)
 		{
 			if (combatTarget == null) {
 				return false;
@@ -77,8 +74,8 @@ namespace RPG.Combat {
 			myAnim.SetTrigger ("attack");
 		}
 
-		//Called from PlayerController
-		public void Attack (CombatTarget combatTarget)
+		//Called from PlayerController and AIController
+		public void Attack (GameObject combatTarget)
 		{
 			GetComponent<ActionScheduler> ().StartAction (this);
 			target = combatTarget.GetComponent<Health> ();
@@ -98,11 +95,11 @@ namespace RPG.Combat {
 
 		public void Cancel ()
 		{
-			StopAttack ();
+			StopAttacking ();
 			target = null;
 		}
 
-		private void StopAttack ()
+		private void StopAttacking ()
 		{
 			myAnim.ResetTrigger ("attack");
 			myAnim.SetTrigger ("stopAttack");

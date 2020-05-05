@@ -1,6 +1,8 @@
-﻿using RPG.Core;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.AI;
+using RPG.Core;
+using RPG.Control;
+using RPG.Combat;
 
 namespace RPG.Movement {
 
@@ -9,16 +11,20 @@ namespace RPG.Movement {
 		private NavMeshAgent myNavAgent;
 		private Vector3 velocity;
 		private Animator myAnimator;
+		private Health health;
 
 		void Start ()
 		{
 			myNavAgent = GetComponent<NavMeshAgent> ();
 			myAnimator = GetComponent<Animator> ();
-
+			health = GetComponent<Health> ();
 		}
 
 		void Update ()
 		{
+			if (health.IsDead ()) {
+				myNavAgent.enabled = false;
+			}
 			UpdateAnimator ();
 		}
 
@@ -30,12 +36,18 @@ namespace RPG.Movement {
 
 		public void MoveTo (Vector3 destination)
 		{
+			if (!myNavAgent.enabled) {
+				return;
+			}
 			myNavAgent.destination = destination;
 			myNavAgent.isStopped = false;
 		}
 
 		public void Cancel ()
 		{
+			if (!myNavAgent.enabled) {
+				return;
+			}
 			myNavAgent.isStopped = true;
 		}
 
